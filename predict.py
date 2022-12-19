@@ -1,3 +1,6 @@
+import time
+start_time = time.time()
+
 from matplotlib.pyplot import axis
 import numpy as np
 import cv2
@@ -10,23 +13,23 @@ tf.disable_eager_execution()
 kr = tf.keras
 
 def main():
-    model = kr.models.load_model("model/classifier_20221217_124749.h5")
+    model = kr.models.load_model("model/classifier_20221217_171424.h5")
     folders = ["circle", "square", "triangle"]
     input_shape = (20, 20)
-    num_of_img = 60
+    num_of_img_total = 60
+    num_of_img_folder = 20
 
     result_handwrite = []
     result_nohandwrite = []
-    
+
     for i, folder in enumerate(folders):
-        files = glob.glob("imgs/test/{}/*.png".format(folder), recursive = True)
         test_imgs = []
-        for j, file in enumerate(files):
-            img_raw = cv2.imread(file)
+        for j in range(num_of_img_folder):
+            img_raw = cv2.imread("imgs/test/{}/{}.png".format(folder, j))
             img_converted = convert_image(img_raw)
             cv2.imwrite("result_img/{}/result_".format(folder) + str(j) + ".jpg", img_converted)
             test_imgs.append(img_converted / 255.)
-        predict_results = model.predict(np.asarray(test_imgs).reshape(len(files), input_shape[0], input_shape[1], 1)).argmax(axis=1)
+        predict_results = model.predict(np.asarray(test_imgs).reshape(num_of_img_folder, input_shape[0], input_shape[1], 1)).argmax(axis=1)
 
         for j, pred_result in enumerate(predict_results):
             if j < 10:
@@ -36,7 +39,7 @@ def main():
 
     accuracy_handwrite = result_handwrite.count(1) / len(result_handwrite)
     accuracy_nohandwrite = result_nohandwrite.count(1) / len(result_nohandwrite)
-    accuracy = (result_handwrite.count(1) + result_nohandwrite.count(1)) / num_of_img
+    accuracy = (result_handwrite.count(1) + result_nohandwrite.count(1)) / num_of_img_total
     print("total accuracy : {} , handwrite accuracy : {} , not handwrite accuracy : {}".format(accuracy, accuracy_handwrite, accuracy_nohandwrite))
 
 def clip_image(img_bin, upper, lower, left,right):
@@ -83,3 +86,5 @@ def convert_image(img_raw):
 
 if __name__ == "__main__":
     main()
+    stop_time = time.time()
+    print("elapsed_time : {}".format(stop_time - start_time))

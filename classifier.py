@@ -1,3 +1,6 @@
+import time
+start_time = time.time()
+
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = "3"
 import tensorflow
@@ -39,7 +42,7 @@ def main():
     )
     
     # train classifier
-    num_of_epoch = 30
+    num_of_epoch = 20
 
     logs_dir = "logs/fit/"
     tsb = kr.callbacks.TensorBoard(log_dir=logs_dir)
@@ -90,3 +93,5 @@ def build_classifier(img_size: tuple):
 
 if __name__ == "__main__":
     main()
+    stop_time = time.time()
+    print("elapsed_time : {}".format(stop_time - start_time))
